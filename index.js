@@ -61,6 +61,9 @@ var friends = [
     }
 ];
 
+// let select = lego.select('name');
+// console.log(select)
+
 // Находим настоящих друзей
 var bestFriends = lego.query(
 
