@@ -4,7 +4,7 @@
  * Сделано задание на звездочку
  * Реализованы методы or и and
  */
-exports.isStar = false;
+exports.isStar = true;
 
 /**
  * Запрос к коллекции
@@ -26,7 +26,9 @@ exports.query = function (collection) {
             query.push(current);
             query.splice(index, 1);
         }
-        if ((current.name === 'filterIn') || (current.name === 'sortBy')) {
+        if ((current.name === 'filterIn') ||
+           (current.name === 'sortBy') ||
+           (current.name === 'or')) {
             query.unshift(current);
             query.splice(index + 1, 1);
         }
@@ -128,17 +130,36 @@ if (exports.isStar) {
      * Фильтрация, объединяющая фильтрующие функции
      * @star
      * @params {...Function} – Фильтрующие функции
+     * @returns {Array}
      */
     exports.or = function () {
-        return;
+        let query = [].slice.call(arguments);
+
+        return function or(collection) {
+            let result = query.map(function (item) {
+                return item(collection);
+            }, collection);
+
+            return result.reduce(function (acc, current) {
+                return acc.concat(current);
+            });
+        };
     };
 
     /**
      * Фильтрация, пересекающая фильтрующие функции
      * @star
      * @params {...Function} – Фильтрующие функции
+     * @returns {Array}
      */
     exports.and = function () {
-        return;
+        let query = [].slice.call(arguments);
+
+        return function and(collection) {
+            return query.reduce(function (acc, current) {
+                return current(acc);
+            }, collection);
+        };
     };
+
 }
