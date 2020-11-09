@@ -61,9 +61,6 @@ var friends = [
     }
 ];
 
-// let select = lego.select('name');
-// console.log(select)
-
 // Находим настоящих друзей
 var bestFriends = lego.query(
 
@@ -88,7 +85,34 @@ var bestFriends = lego.query(
     lego.limit(4)
 );
 
-console.info(bestFriends);
+var bestFriends2 = lego.query(
+
+    // среди всех друзей.
+    friends,
+
+    // Выбираем имена и email для праздничной рассылки
+    lego.select('name'),
+
+    lego.select('gender'),
+
+    lego.select('email'),
+
+    // Отбираем только тех, кто любит Яблоки или Картофель (самое важное !!!)
+    lego.filterIn('favoriteFruit', ['Яблоко', 'Картофель']),
+
+    // Отсортируем их по возрасту (но зачем?)
+    lego.sortBy('age', 'asc'), // Бывает только asc (от меньшего к большему) или desc (наоборот)
+
+    // А пол выведем только первой буквой для удобства
+    lego.format('gender', function (value) {
+        return value[0];
+    }),
+
+    // Настоящих друзей не может быть много
+    lego.limit(4)
+);
+
+console.info(bestFriends2);
 
 /* Выведет:
 [

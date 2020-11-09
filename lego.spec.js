@@ -84,6 +84,49 @@ describe('lego.query', function () {
         ]);
     });
 
+    it('проверка работы нескольких вызовов select', function () {
+        var result = lego.query(
+            friends,
+            lego.select('name'),
+            lego.select('gender'),
+            lego.select('email'),
+            lego.filterIn('favoriteFruit', ['Яблоко', 'Картофель']),
+            lego.sortBy('age', 'asc'),
+            lego.format('gender', function (value) {
+                return value[0];
+            }),
+            lego.limit(4)
+        );
+
+        assert.deepStrictEqual(result, [
+            { name: 'Стелла', gender: 'Ж', email: 'waltersguzman@example.com' },
+            { name: 'Мэт', gender: 'М', email: 'danamcgee@example.com' },
+            { name: 'Шерри', gender: 'Ж', email: 'danamcgee@example.com' },
+            { name: 'Сэм', gender: 'М', email: 'luisazamora@example.com' }
+        ]);
+    });
+
+    it('проверка повторной работы нескольких вызовов select', function () {
+        var result = lego.query(
+            friends,
+            lego.select('name'),
+            lego.select('gender'),
+            lego.filterIn('favoriteFruit', ['Яблоко', 'Картофель']),
+            lego.sortBy('age', 'asc'),
+            lego.format('gender', function (value) {
+                return value[0];
+            }),
+            lego.limit(4)
+        );
+
+        assert.deepStrictEqual(result, [
+            { name: 'Стелла', gender: 'Ж' },
+            { name: 'Мэт', gender: 'М' },
+            { name: 'Шерри', gender: 'Ж' },
+            { name: 'Сэм', gender: 'М' }
+        ]);
+    });
+
     if (lego.isStar) {
         it('должен поддерживать операторы or и and', function () {
             var result = lego.query(

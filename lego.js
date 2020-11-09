@@ -6,6 +6,8 @@
  */
 exports.isStar = true;
 
+let allSelects = [];
+
 /**
  * Запрос к коллекции
  * @param {Array} collection
@@ -16,19 +18,28 @@ exports.query = function (collection) {
     if (arguments.length === 1 && Array.isArray(arguments[0])) {
         return arguments[0];
     }
+    let currentSelects = [].concat(allSelects);
+    allSelects.length = 0;
 
     let copyOfCollection = JSON.parse(JSON.stringify(collection));
 
     let query = [].slice.call(arguments, 1);
 
+    if (query.filter(function (item) {
+        return item.name === 'select';
+    }).length > 1) {
+        query = query.filter(function (item) {
+            return item.name !== 'select';
+        });
+        query.push(exports.select(currentSelects));
+    }
+
     query.forEach((current, index) => {
-        if ((current.name === 'limit') || (current.name === 'format')) {
+        if (['limit', 'format'].includes(current.name)) {
             query.push(current);
             query.splice(index, 1);
         }
-        if ((current.name === 'filterIn') ||
-           (current.name === 'sortBy') ||
-           (current.name === 'or')) {
+        if (['filterIn', 'sortBy', 'or'].includes(current.name)) {
             query.unshift(current);
             query.splice(index + 1, 1);
         }
@@ -45,7 +56,14 @@ exports.query = function (collection) {
  * @returns {Array}
  */
 exports.select = function () {
-    let args = [].slice.call(arguments);
+    let args;
+    if (Array.isArray(arguments[0])) { // real nigga shit
+        args = [].slice.call(arguments[0]);
+    } else {
+        args = [].slice.call(arguments);
+    }
+
+    allSelects.push(args.toString());
 
     return function select(collection) {
         return JSON.parse(JSON.stringify(collection, args));
